@@ -1,0 +1,93 @@
+version: '3.7'
+services:
+
+  # Plex | https://hub.docker.com/r/plexinc/pms-docker/
+  plex:
+    container_name: plex
+    image: plexinc/pms-docker
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      - TZ=Australia/Canberra
+      - PLEX_UID=1000
+      - PLEX_GUID=1004
+    volumes:
+      - $PWD/plex/config:/config
+      - $PWD/plex/transcode:/transcode
+      - /mnt/nfs:/data
+        
+  # SABnzbd | https://hub.docker.com/r/linuxserver/sabnzbd/
+  sabnzbd:
+    container_name: sabnzbd
+    image: linuxserver/sabnzbd
+    restart: unless-stopped
+    networks:
+      - media-stack
+    environment:
+      - PUID=1000
+      - PGID=1004
+      - TZ=Australia/Canberra
+    volumes:
+      - $PWD/sabnzbd/config:/config
+      - /mnt/nfs/downloads:/downloads
+      - /mnt/nfs/incomplete-downloads:/incomplete-downloads
+    ports:
+      - 8080:8080
+      - 9090:9090
+  
+  # Sonarr | https://hub.docker.com/r/linuxserver/sonarr
+  sonarr:
+    container_name: sonarr
+    image: linuxserver/sonarr
+    restart: unless-stopped
+    networks:
+      - media-stack
+    environment:
+      - PUID=1000
+      - PGID=1004
+      - TZ=Australia/Canberra
+    volumes:
+      - $PWD/sonarr/config:/config
+      - /mnt/nfs/tv:/tv
+      - /mnt/nfs/downloads:/downloads
+    ports:
+      - 8989:8989
+      
+  # Radarr | https://hub.docker.com/r/linuxserver/radarr
+  radarr:
+    container_name: radarr
+    image: linuxserver/radarr
+    restart: unless-stopped
+    networks:
+      - media-stack
+    environment:
+      - PUID=1000
+      - PGID=1004
+      - TZ=Australia/Canberra
+    volumes:
+      - $PWD/radarr/config:/config
+      - /mnt/nfs/movies:/movies
+      - /mnt/nfs/downloads:/downloads
+    ports:
+      - 7878:7878
+
+  # Tautulli | https://hub.docker.com/r/linuxserver/tautulli
+  tautulli:
+    image: linuxserver/tautulli
+    container_name: tautulli
+    restart: unless-stopped
+    networks:
+      - media-stack
+    environment:
+      - PUID=1000
+      - PGID=1004
+      - TZ=Australia/Canberra
+    volumes:
+      - $PWD/tautulli/config:/config
+      - $PWD/plex/config/Library/Application Support/Plex Media Server/Logs:/logs
+    ports:
+      - 8181:8181
+
+networks:
+  media-stack:
+    name: media-stack
