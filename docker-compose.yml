@@ -1,7 +1,6 @@
 version: '3.7'
 services:
 
-  # Plex | https://hub.docker.com/r/plexinc/pms-docker/
   plex:
     container_name: plex
     image:  linuxserver/plex
@@ -48,9 +47,9 @@ services:
       - PGID=1004
       - TZ=America/Santiago
     volumes:
-      - $PWD/radarr/config:/config
-      - /mnt/nfs/movies:/movies
-      - /mnt/nfs/downloads:/downloads
+      - /opt/radarr-docker/config:/config
+      - /mnt/multimedia:/mnt/multimedia
+      - /mnt/download:/downloads
     ports:
       - 7878:7878
 
