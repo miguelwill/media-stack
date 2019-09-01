@@ -43,8 +43,8 @@ services:
     networks:
       - media-stack
     environment:
-      - PUID=1000
-      - PGID=1004
+      - PUID=0
+      - PGID=0
       - TZ=America/Santiago
     volumes:
       - /opt/radarr-docker/config:/config
@@ -74,6 +74,8 @@ services:
   jackett:
     image: linuxserver/jackett
     container_name: jackett
+    networks:
+      - media-stack
     environment:
       - PUID=1000
       - PGID=1000
@@ -90,6 +92,8 @@ services:
       lidarr:
     image: linuxserver/lidarr
     container_name: lidarr
+    networks:
+      - media-stack
     environment:
       - PUID=0
       - PGID=0
@@ -103,22 +107,6 @@ services:
       - 8686:8686
     restart: unless-stopped
 
-#deluge torrent client
-  deluge:
-    image: linuxserver/deluge
-    container_name: deluge
-    network_mode: host
-    environment:
-      - PUID=0
-      - PGID=0
-      - TZ=America/Santiago
-      - UMASK_SET=002 #optional
-      - DELUGE_LOGLEVEL=error #optional
-    volumes:
-      - /opt/deluge-docker:/config
-      - /mnt/download:/downloads
-      - /mnt/multimedia:/mnt/multimedia
-    restart: unless-stopped
     
 networks:
   media-stack:
