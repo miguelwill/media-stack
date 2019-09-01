@@ -69,7 +69,57 @@ services:
       - /opt/plex-docker/config/Library/Application Support/Plex Media Server/Logs:/logs
     ports:
       - 8181:8181
+   
+   #jackett 
+  jackett:
+    image: linuxserver/jackett
+    container_name: jackett
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Santiago
+      - RUN_OPTS=run options here #optional
+    volumes:
+      - /opt/jackett:/config
+      - /mnt/download:/downloads
+    ports:
+      - 9117:9117
+    restart: unless-stopped
+    
+    #lidarr
+      lidarr:
+    image: linuxserver/lidarr
+    container_name: lidarr
+    environment:
+      - PUID=0
+      - PGID=0
+      - TZ=America/Santiago
+      - UMASK_SET=002 #optional
+    volumes:
+      - /opt/lidarr:/config
+      - /mnt/multimedia:/mnt/multimedia
+      - /mnt/download:/downloads
+    ports:
+      - 8686:8686
+    restart: unless-stopped
 
+#deluge torrent client
+  deluge:
+    image: linuxserver/deluge
+    container_name: deluge
+    network_mode: host
+    environment:
+      - PUID=0
+      - PGID=0
+      - TZ=America/Santiago
+      - UMASK_SET=002 #optional
+      - DELUGE_LOGLEVEL=error #optional
+    volumes:
+      - /opt/deluge-docker:/config
+      - /mnt/download:/downloads
+      - /mnt/multimedia:/mnt/multimedia
+    restart: unless-stopped
+    
 networks:
   media-stack:
     name: media-stack
