@@ -4,52 +4,35 @@ services:
   # Plex | https://hub.docker.com/r/plexinc/pms-docker/
   plex:
     container_name: plex
-    image: plexinc/pms-docker
+    image:  linuxserver/plex
     restart: unless-stopped
     network_mode: host
     environment:
-      - TZ=Australia/Canberra
-      - PLEX_UID=1000
-      - PLEX_GUID=1004
+      - TZ=America/Santiago
+      - PLEX_UID=0
+      - PLEX_GUID=0
     volumes:
-      - $PWD/plex/config:/config
-      - $PWD/plex/transcode:/transcode
-      - /mnt/nfs:/data
+      - /opt/plex-docker/config:/config
+      - /opt/plex-docker//transcode:/transcode
+      - /mnt/multimedia:/mnt/multimedia
         
-  # SABnzbd | https://hub.docker.com/r/linuxserver/sabnzbd/
-  sabnzbd:
-    container_name: sabnzbd
-    image: linuxserver/sabnzbd
-    restart: unless-stopped
-    networks:
-      - media-stack
-    environment:
-      - PUID=1000
-      - PGID=1004
-      - TZ=Australia/Canberra
-    volumes:
-      - $PWD/sabnzbd/config:/config
-      - /mnt/nfs/downloads:/downloads
-      - /mnt/nfs/incomplete-downloads:/incomplete-downloads
-    ports:
-      - 8080:8080
-      - 9090:9090
   
   # Sonarr | https://hub.docker.com/r/linuxserver/sonarr
   sonarr:
-    container_name: sonarr
-    image: linuxserver/sonarr
+    container_name: sonarrv3
+    image: linuxserver/sonarr:preview
     restart: unless-stopped
     networks:
       - media-stack
     environment:
-      - PUID=1000
-      - PGID=1004
-      - TZ=Australia/Canberra
+      - PUID=0
+      - PGID=0
+      - TZ=America/Santiago
     volumes:
-      - $PWD/sonarr/config:/config
-      - /mnt/nfs/tv:/tv
-      - /mnt/nfs/downloads:/downloads
+      - /opt/sonarrv3:/config
+      - /mnt/multimedia:/mnt/multimedia
+      - /mnt/download:/downloads
+      - /mnt/multimedia/sonarr/Series:/tv
     ports:
       - 8989:8989
       
@@ -63,7 +46,7 @@ services:
     environment:
       - PUID=1000
       - PGID=1004
-      - TZ=Australia/Canberra
+      - TZ=America/Santiago
     volumes:
       - $PWD/radarr/config:/config
       - /mnt/nfs/movies:/movies
@@ -79,12 +62,12 @@ services:
     networks:
       - media-stack
     environment:
-      - PUID=1000
-      - PGID=1004
-      - TZ=Australia/Canberra
+      - PUID=0
+      - PGID=0
+      - TZ=America/Santiago
     volumes:
-      - $PWD/tautulli/config:/config
-      - $PWD/plex/config/Library/Application Support/Plex Media Server/Logs:/logs
+      - /opt/tautulli/config:/config
+      - /opt/plex-docker/config/Library/Application Support/Plex Media Server/Logs:/logs
     ports:
       - 8181:8181
 
