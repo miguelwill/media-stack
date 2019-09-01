@@ -1,0 +1,62 @@
+version: '3.7'
+services:
+
+  
+   
+   #jackett 
+  jackett:
+    image: linuxserver/jackett
+    container_name: jackett
+    networks:
+      - media-stack
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Santiago
+      - RUN_OPTS=run options here #optional
+    volumes:
+      - /opt/jackett:/config
+      - /mnt/download:/downloads
+    ports:
+      - 9117:9117
+    restart: unless-stopped
+    
+   
+#deluge torrent client
+  deluge:
+    image: linuxserver/deluge
+    container_name: deluge
+    network_mode: host
+    environment:
+      - PUID=0
+      - PGID=0
+      - TZ=America/Santiago
+      - UMASK_SET=002 #optional
+      - DELUGE_LOGLEVEL=error #optional
+    volumes:
+      - /opt/deluge-docker:/config
+      - /mnt/download:/downloads
+      - /mnt/multimedia:/mnt/multimedia
+    restart: unless-stopped
+    
+#filebrowser https://hub.docker.com/r/filebrowser/filebrowser
+  filebrowser:
+    image: filebrowser/filebrowser
+    container_name: filebrowser
+    networks:
+      - media-stack
+    environment:
+      - PUID=0
+      - PGID=0
+      - TZ=America/Santiago
+    volumes:
+      - /opt/opt:/config
+      - /mnt/download:/downloads
+      - /mnt/multimedia:/mnt/multimedia
+    ports:
+      - 89:80
+    restart: unless-stopped
+    
+networks:
+  media-stack:
+    name: media-stack
