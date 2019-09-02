@@ -26,7 +26,8 @@ services:
   deluge:
     image: linuxserver/deluge
     container_name: deluge
-    network_mode: host
+    networks:
+      - media-stack
     environment:
       - PUID=0
       - PGID=0
@@ -37,6 +38,8 @@ services:
       - /opt/deluge-docker:/config
       - /mnt/download:/downloads
       - /mnt/multimedia:/mnt/multimedia
+    ports:
+      - 8112:8112
     restart: unless-stopped
     
 #filebrowser https://hub.docker.com/r/filebrowser/filebrowser
