@@ -51,6 +51,7 @@ services:
     volumes:
       - /opt/filebrowser:/data
       - /mnt/multimedia:/mnt/multimedia
+      - /mnt/multimedia:/srv
     ports:
       - 89:80
 
