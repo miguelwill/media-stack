@@ -5,9 +5,9 @@ services:
    
    #jackett 
   jackett:
+    container_name: jackett
     image: linuxserver/jackett
     restart: unless-stopped
-    container_name: jackett
     networks:
       - media-stack
     environment:
@@ -23,9 +23,9 @@ services:
    
 #deluge torrent client
   deluge:
+    container_name: deluge
     image: linuxserver/deluge
     restart: unless-stopped
-    container_name: deluge
     networks:
       - media-stack
     environment:
@@ -43,9 +43,9 @@ services:
       
 #filebrowser https://hub.docker.com/r/filebrowser/filebrowser
   filebrowser:
+    container_name: filebrowser
     image: filebrowser/filebrowser
     restart: unless-stopped
-    container_name: filebrowser
     networks:
       - media-stack
     environment:
