@@ -6,6 +6,7 @@ services:
    #jackett 
   jackett:
     image: linuxserver/jackett
+    restart: unless-stopped
     container_name: jackett
     networks:
       - media-stack
@@ -19,12 +20,12 @@ services:
       - /mnt/download:/downloads
     ports:
       - 9117:9117
-    restart: unless-stopped
     
    
 #deluge torrent client
   deluge:
     image: linuxserver/deluge
+    restart: unless-stopped
     container_name: deluge
     networks:
       - media-stack
@@ -40,11 +41,11 @@ services:
       - /mnt/multimedia:/mnt/multimedia
     ports:
       - 8112:8112
-    restart: unless-stopped
-    
+      
 #filebrowser https://hub.docker.com/r/filebrowser/filebrowser
   filebrowser:
     image: filebrowser/filebrowser
+    restart: unless-stopped
     container_name: filebrowser
     networks:
       - media-stack
@@ -58,8 +59,7 @@ services:
       - /mnt/multimedia:/mnt/multimedia
     ports:
       - 89:80
-    restart: unless-stopped
-    
+      
 networks:
   media-stack:
     name: media-stack
