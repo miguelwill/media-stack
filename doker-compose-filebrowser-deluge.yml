@@ -2,11 +2,11 @@ version: '3.7'
 services:
 
   jackett:
-    container_name: jackett
+    #container_name: jackett
     image:  linuxserver/jackett
-    restart: unless-stopped
+    #restart: unless-stopped
     networks:
-      - media-stack
+      - file-stack
     environment:
       - TZ=America/Santiago
       - PLEX_UID=0
@@ -21,11 +21,11 @@ services:
   
   #deluge
   deluge:
-    container_name: deluge
+    #container_name: deluge
     image: linuxserver/deluge
-    restart: unless-stopped
+    #restart: unless-stopped
     networks:
-      - media-stack
+      - file-stack
     environment:
       - PUID=0
       - PGID=0
@@ -39,11 +39,11 @@ services:
       
   # filebrowser
   filebrowser:
-    container_name: filebrowser
+    #container_name: filebrowser
     image: filebrowser/filebrowser
-    restart: unless-stopped
+    #restart: unless-stopped
     networks:
-      - media-stack
+      - file-stack
     environment:
       - PUID=0
       - PGID=0
@@ -56,5 +56,5 @@ services:
 
     
 networks:
-  media-stack:
-    name: media-stack
+  file-stack:
+    name: file-stack
