@@ -16,7 +16,7 @@ services:
       - /mnt/multimedia:/mnt/multimedia
       - /mnt/download:/downloads
     ports:
-      - 8989:8989
+      - 9117:9117
         
   
   #deluge
