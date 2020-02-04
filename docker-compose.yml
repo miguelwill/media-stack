@@ -1,6 +1,7 @@
-version: '3.7'
+version: '3.6'
 services:
 
+  # Plex | https://hub.docker.com/r/plexinc/pms-docker/
   plex:
     container_name: plex
     image:  linuxserver/plex
@@ -14,6 +15,12 @@ services:
       - /opt/plex-docker/config:/config
       - /opt/plex-docker//transcode:/transcode
       - /mnt/multimedia:/mnt/multimedia
+      - /mnt/download:/download
+    ports:
+      - 32400:32400
+      - 3005:3005
+      - 8324:8324
+      - 32469:32469
         
   
   # Sonarr | https://hub.docker.com/r/linuxserver/sonarr
@@ -38,7 +45,7 @@ services:
   # Radarr | https://hub.docker.com/r/linuxserver/radarr
   radarr:
     container_name: radarr
-    image: linuxserver/radarr
+    image: linuxserver/radarr:preview
     restart: unless-stopped
     networks:
       - media-stack
@@ -48,8 +55,9 @@ services:
       - TZ=America/Santiago
     volumes:
       - /opt/radarr-docker/config:/config
-      - /mnt/multimedia:/mnt/multimedia
+      - /mnt/multimedia/Movies:/movies
       - /mnt/download:/downloads
+      - /mnt/multimedia:/mnt/multimedia
     ports:
       - 7878:7878
 
@@ -69,45 +77,164 @@ services:
       - /opt/plex-docker/config/Library/Application Support/Plex Media Server/Logs:/logs
     ports:
       - 8181:8181
-   
-   #jackett 
-  jackett:
-    image: linuxserver/jackett
-    container_name: jackett
-    networks:
-      - media-stack
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=America/Santiago
-      - RUN_OPTS=run options here #optional
-    volumes:
-      - /opt/jackett:/config
-      - /mnt/download:/downloads
-    ports:
-      - 9117:9117
-    restart: unless-stopped
-    
-    #lidarr
-      lidarr:
-    image: linuxserver/lidarr
+
+  # Lidarr | https://hub.docker.com/r/linuxserver/lidarr
+  lidarr:
     container_name: lidarr
+    image: linuxserver/lidarr:latest
+    restart: unless-stopped
     networks:
       - media-stack
     environment:
       - PUID=0
       - PGID=0
       - TZ=America/Santiago
-      - UMASK_SET=002 #optional
     volumes:
       - /opt/lidarr:/config
-      - /mnt/multimedia:/mnt/multimedia
       - /mnt/download:/downloads
+      - /mnt/download:/mnt/download
+      - /mnt/multimedia:/mnt/multimedia
     ports:
       - 8686:8686
+
+  # Bazarr | https://hub.docker.com/r/linuxserver/bazarr
+  bazarr:
+    container_name: bazarr
+    image: linuxserver/bazarr:latest
+    restart: unless-stopped
+    networks:
+      - media-stack
+    environment:
+      - PUID=0
+      - PGID=0
+      - TZ=America/Santiago
+    volumes:
+      - /opt/bazarr:/config
+      - /mnt/download:/downloads
+      - /mnt/multimedia:/mnt/multimedia
+    ports:
+      - 6767:6767
+
+# ouroboros | https://hub.docker.com/r/pyouroboros/ouroboros
+  ouroboros:
+    container_name: ouroboros
+    image: pyouroboros/ouroboros:latest
+    restart: unless-stopped
+    networks:
+      - media-stack
+    environment:
+      - PUID=0
+      - PGID=0
+      - LATEST=true
+      - TZ=America/Santiago
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+# Jackett | https://hub.docker.com/r/linuxserver/jackett
+  jackett:
+    container_name: jackett
+    image: linuxserver/jackett:latest
+    restart: unless-stopped
+    networks:
+      - media-stack
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Santiago
+    volumes:
+      - /opt/jackett:/config
+      - /mnt/download:/downloads
+      - /mnt/multimedia:/mnt/multimedia
+    ports:
+      - 9117:9117
+
+# deluge | https://hub.docker.com/r/linuxserver/deluge
+  deluge:
+    container_name: deluge
+    image: linuxserver/deluge:latest
+    restart: unless-stopped
+    networks:
+      - media-stack
+    environment:
+      - PUID=0
+      - PGID=0
+      - TZ=America/Santiago
+    volumes:
+      - /opt/deluge-docker:/config
+      - /mnt/download:/downloads
+      - /mnt/multimedia:/mnt/multimedia
+    ports:
+      - 8112:8112
+
+# filebrowser | https://hub.docker.com/r/filebrowser/filebrowser
+  filebrowser:
+    container_name: filebrowser
+    image: filebrowser/filebrowser:latest
+    restart: unless-stopped
+    networks:
+      - media-stack
+    environment:
+      - PUID=0
+      - PGID=0
+      - TZ=America/Santiago
+    volumes:
+      - /opt/filebrowser:/data
+      - /opt/filebrowser/database.db:/database.db
+      - /mnt/multimedia:/srv
+    ports:
+      - 89:80
+
+  heimdall:
+    image: linuxserver/heimdall:latest
+    container_name: heimdall
+    networks:
+      - media-stack
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/Santiago
+    volumes:
+      - /opt/heimdall:/config
+    ports:
+      - 8280:80
+      - 2143:443
     restart: unless-stopped
 
-    
+  proxy-manager:
+    image: jc21/nginx-proxy-manager:latest
+    container_name: proxy-manager
+    restart: always
+    ports:
+      - 88:80
+      - 81:81
+      - 8443:443
+    volumes:
+      - /opt/proxy-manager/config/config.json:/app/config/production.json
+      - /opt/proxy-manager/data:/data
+      - /opt/proxy-manager/letsencrypt:/etc/letsencrypt
+    depends_on:
+      - dbproxy
+    networks:
+      - media-stack
+    environment:
+    # if you want pretty colors in your docker logs:
+    - FORCE_COLOR=1
+    - TZ=America/Santiago
+  dbproxy:
+    image: mariadb:latest
+    container_name: dbproxy
+    restart: always
+    networks:
+      - media-stack
+    environment:
+      MYSQL_ROOT_PASSWORD: "proxyroot"
+      MYSQL_DATABASE: "proxydb"
+      MYSQL_USER: "proxyuser"
+      MYSQL_PASSWORD: "proxypass"
+      TZ: "America/Santiago"
+    volumes:
+      - /opt/proxy-manager/data/mysql:/var/lib/mysql
+
 networks:
   media-stack:
     name: media-stack
